@@ -261,12 +261,11 @@ var MDtoLinkSettingTab = class extends import_obsidian2.PluginSettingTab {
 };
 
 // src/publish.ts
-var CUSTOM_SLUG_RE = /^[a-z0-9-]+$/;
 function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 100);
 }
 function buildDocumentUrl(slug, urlType, username) {
-  if (urlType === "user_scoped" && username !== null && CUSTOM_SLUG_RE.test(slug)) {
+  if (urlType === "user_scoped" && username !== null) {
     return `${APP_URL}/@${username}/${slug}`;
   }
   return `${APP_URL}/d/${slug}`;

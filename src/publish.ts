@@ -8,9 +8,6 @@ import {
 } from "./frontmatter";
 import { APP_URL, type MDtoLinkSettings } from "./settings";
 
-// Custom slugs are lowercase alphanumeric + hyphens only.
-const CUSTOM_SLUG_RE = /^[a-z0-9-]+$/;
-
 /**
  * Derive a URL-friendly slug from a note filename.
  * "My Meeting Notes" → "my-meeting-notes"
@@ -28,14 +25,7 @@ function buildDocumentUrl(
 	urlType: string,
 	username: string | null
 ): string {
-	// Only use /@username/slug when it's user_scoped, has a username,
-	// AND the slug is a valid custom slug (lowercase). Nanoid slugs
-	// contain uppercase chars and must go through /d/:slug.
-	if (
-		urlType === "user_scoped" &&
-		username !== null &&
-		CUSTOM_SLUG_RE.test(slug)
-	) {
+	if (urlType === "user_scoped" && username !== null) {
 		return `${APP_URL}/@${username}/${slug}`;
 	}
 	return `${APP_URL}/d/${slug}`;
