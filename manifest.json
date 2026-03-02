@@ -1,0 +1,10 @@
+{
+  "id": "mdtolink",
+  "name": "MDtoLink",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "Publish markdown notes to shareable URLs with one click via MDtoLink.",
+  "author": "David Schemm",
+  "authorUrl": "https://mdtolink.com",
+  "isDesktopOnly": false
+}
