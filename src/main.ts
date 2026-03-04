@@ -19,14 +19,14 @@ export default class MDtoLinkPlugin extends Plugin {
 		await this.loadSettings();
 
 		// Ribbon icon
-		this.addRibbonIcon("share", "Publish to MDtoLink", async () => {
+		this.addRibbonIcon("share", "Publish current note", async () => {
 			await this.handlePublish();
 		});
 
 		// Commands
 		this.addCommand({
 			id: "publish",
-			name: "Publish to MDtoLink",
+			name: "Publish current note",
 			callback: async () => {
 				await this.handlePublish();
 			},
@@ -34,7 +34,7 @@ export default class MDtoLinkPlugin extends Plugin {
 
 		this.addCommand({
 			id: "unpublish",
-			name: "Unpublish from MDtoLink",
+			name: "Unpublish current note",
 			callback: async () => {
 				await this.handleUnpublish();
 			},
@@ -42,7 +42,7 @@ export default class MDtoLinkPlugin extends Plugin {
 
 		this.addCommand({
 			id: "copy-link",
-			name: "Copy MDtoLink URL",
+			name: "Copy published link",
 			callback: async () => {
 				await copyLink(this.app);
 			},
@@ -64,7 +64,7 @@ export default class MDtoLinkPlugin extends Plugin {
 
 		// Fetch username on load if API key is configured
 		if (this.settings.apiKey.length > 0) {
-			this.fetchUsername();
+			this.fetchUsername().catch(() => {});
 		}
 	}
 
@@ -79,7 +79,7 @@ export default class MDtoLinkPlugin extends Plugin {
 
 	private createClient(): MDtoLinkClient | null {
 		if (this.settings.apiKey.length === 0) {
-			new Notice("MDtoLink: Please set your API key in the plugin settings.");
+			new Notice("Please set your API key in the plugin settings.");
 			return null;
 		}
 		return new MDtoLinkClient(SERVER_URL, this.settings.apiKey);
@@ -116,9 +116,9 @@ export default class MDtoLinkPlugin extends Plugin {
 
 		const meta = getMDtoLinkMeta(this.app, file);
 		if (meta !== null) {
-			this.statusBarEl.setText("MDtoLink: Published");
+			this.statusBarEl.setText("Published");
 		} else {
-			this.statusBarEl.setText("MDtoLink: Not published");
+			this.statusBarEl.setText("Not published");
 		}
 	}
 

@@ -1,4 +1,10 @@
-import { type App, Notice, PluginSettingTab, Setting } from "obsidian";
+import {
+	type App,
+	createFragment,
+	Notice,
+	PluginSettingTab,
+	Setting,
+} from "obsidian";
 import { MDtoLinkApiError, MDtoLinkClient } from "./api-client";
 import type MDtoLinkPlugin from "./main";
 
@@ -29,7 +35,7 @@ export class MDtoLinkSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl("h2", { text: "MDtoLink Settings" });
+		new Setting(containerEl).setName("MDtoLink settings").setHeading();
 
 		// API Key
 		new Setting(containerEl)
@@ -38,7 +44,7 @@ export class MDtoLinkSettingTab extends PluginSettingTab {
 				createFragment((frag) => {
 					frag.appendText("Generate one from your ");
 					frag.createEl("a", {
-						text: "MDtoLink dashboard",
+						text: "dashboard",
 						href: `${APP_URL}/dashboard/account`,
 					});
 					frag.appendText(".");
@@ -46,7 +52,7 @@ export class MDtoLinkSettingTab extends PluginSettingTab {
 			)
 			.addText((text) =>
 				text
-					.setPlaceholder("mdtolink_...")
+					.setPlaceholder("Enter your API key")
 					.setValue(this.plugin.settings.apiKey)
 					.onChange(async (value) => {
 						this.plugin.settings.apiKey = value;
@@ -82,7 +88,7 @@ export class MDtoLinkSettingTab extends PluginSettingTab {
 
 		// Auto-load plan info if API key is set
 		if (this.plugin.settings.apiKey.length > 0) {
-			this.loadPlanInfo();
+			this.loadPlanInfo().catch(() => {});
 		}
 	}
 
@@ -103,7 +109,7 @@ export class MDtoLinkSettingTab extends PluginSettingTab {
 			if (error instanceof MDtoLinkApiError && error.status === 401) {
 				new Notice("Invalid API key. Please check and try again.");
 			} else {
-				new Notice("Failed to connect to MDtoLink.");
+				new Notice("Failed to connect to the server.");
 			}
 		}
 	}
@@ -125,9 +131,11 @@ export class MDtoLinkSettingTab extends PluginSettingTab {
 				cls: "mdtolink-plan-card",
 			});
 
-			card.createEl("h3", {
-				text: `Current plan: ${plan.charAt(0).toUpperCase() + plan.slice(1)}`,
-			});
+			new Setting(card)
+				.setName(
+					`Current plan: ${plan.charAt(0).toUpperCase() + plan.slice(1)}`
+				)
+				.setHeading();
 
 			if (plan === "free") {
 				const desc = card.createEl("p");
@@ -135,7 +143,7 @@ export class MDtoLinkSettingTab extends PluginSettingTab {
 					"You have 5 document slots. Upgrade to Pro for unlimited documents, custom handles, and branding removal. "
 				);
 				desc.createEl("a", {
-					text: "Upgrade to Pro",
+					text: "Upgrade to pro",
 					href: plansUrl,
 				});
 			} else if (plan === "pro") {
@@ -144,7 +152,7 @@ export class MDtoLinkSettingTab extends PluginSettingTab {
 					"Unlimited documents with custom handles. Upgrade to Publisher for custom domains. "
 				);
 				desc.createEl("a", {
-					text: "Upgrade to Publisher",
+					text: "Upgrade to publisher",
 					href: plansUrl,
 				});
 			} else {

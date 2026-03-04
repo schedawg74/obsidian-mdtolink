@@ -165,18 +165,18 @@ var MDtoLinkSettingTab = class extends import_obsidian2.PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl("h2", { text: "MDtoLink Settings" });
+    new import_obsidian2.Setting(containerEl).setName("MDtoLink settings").setHeading();
     new import_obsidian2.Setting(containerEl).setName("API key").setDesc(
-      createFragment((frag) => {
+      (0, import_obsidian2.createFragment)((frag) => {
         frag.appendText("Generate one from your ");
         frag.createEl("a", {
-          text: "MDtoLink dashboard",
+          text: "dashboard",
           href: `${APP_URL}/dashboard/account`
         });
         frag.appendText(".");
       })
     ).addText(
-      (text) => text.setPlaceholder("mdtolink_...").setValue(this.plugin.settings.apiKey).onChange(async (value) => {
+      (text) => text.setPlaceholder("Enter your API key").setValue(this.plugin.settings.apiKey).onChange(async (value) => {
         this.plugin.settings.apiKey = value;
         await this.plugin.saveSettings();
       })
@@ -194,7 +194,8 @@ var MDtoLinkSettingTab = class extends import_obsidian2.PluginSettingTab {
     );
     this.planInfoEl = containerEl.createDiv({ cls: "mdtolink-plan-info" });
     if (this.plugin.settings.apiKey.length > 0) {
-      this.loadPlanInfo();
+      this.loadPlanInfo().catch(() => {
+      });
     }
   }
   async testConnection() {
@@ -212,7 +213,7 @@ var MDtoLinkSettingTab = class extends import_obsidian2.PluginSettingTab {
       if (error instanceof MDtoLinkApiError && error.status === 401) {
         new import_obsidian2.Notice("Invalid API key. Please check and try again.");
       } else {
-        new import_obsidian2.Notice("Failed to connect to MDtoLink.");
+        new import_obsidian2.Notice("Failed to connect to the server.");
       }
     }
   }
@@ -229,16 +230,16 @@ var MDtoLinkSettingTab = class extends import_obsidian2.PluginSettingTab {
       const card = this.planInfoEl.createDiv({
         cls: "mdtolink-plan-card"
       });
-      card.createEl("h3", {
-        text: `Current plan: ${plan.charAt(0).toUpperCase() + plan.slice(1)}`
-      });
+      new import_obsidian2.Setting(card).setName(
+        `Current plan: ${plan.charAt(0).toUpperCase() + plan.slice(1)}`
+      ).setHeading();
       if (plan === "free") {
         const desc = card.createEl("p");
         desc.appendText(
           "You have 5 document slots. Upgrade to Pro for unlimited documents, custom handles, and branding removal. "
         );
         desc.createEl("a", {
-          text: "Upgrade to Pro",
+          text: "Upgrade to pro",
           href: plansUrl
         });
       } else if (plan === "pro") {
@@ -247,7 +248,7 @@ var MDtoLinkSettingTab = class extends import_obsidian2.PluginSettingTab {
           "Unlimited documents with custom handles. Upgrade to Publisher for custom domains. "
         );
         desc.createEl("a", {
-          text: "Upgrade to Publisher",
+          text: "Upgrade to publisher",
           href: plansUrl
         });
       } else {
@@ -277,7 +278,7 @@ async function publishNote(app, client, settings, username) {
     return;
   }
   if (file.extension !== "md") {
-    new import_obsidian3.Notice("Only markdown files can be published.");
+    new import_obsidian3.Notice("Only Markdown files can be published.");
     return;
   }
   const rawContent = await app.vault.read(file);
@@ -344,13 +345,13 @@ async function unpublishNote(app, client) {
   }
   const meta = getMDtoLinkMeta(app, file);
   if (meta === null) {
-    new import_obsidian3.Notice("This note is not published on MDtoLink.");
+    new import_obsidian3.Notice("This note is not published.");
     return;
   }
   try {
     await client.deleteDocument(meta.id);
     await clearMDtoLinkMeta(app, file);
-    new import_obsidian3.Notice("Note unpublished from MDtoLink.");
+    new import_obsidian3.Notice("Note unpublished.");
   } catch (error) {
     handleApiError(error);
   }
@@ -372,9 +373,7 @@ async function copyLink(app) {
 function handleApiError(error) {
   if (error instanceof MDtoLinkApiError) {
     if (error.status === 401) {
-      new import_obsidian3.Notice(
-        "Invalid or expired API key. Check your MDtoLink plugin settings."
-      );
+      new import_obsidian3.Notice("Invalid or expired API key. Check your plugin settings.");
       return;
     }
     if (error.status === 403) {
@@ -394,10 +393,10 @@ function handleApiError(error) {
       }
       return;
     }
-    new import_obsidian3.Notice(`MDtoLink error: ${error.message}`);
+    new import_obsidian3.Notice(`Server error: ${error.message}`);
     return;
   }
-  new import_obsidian3.Notice("Failed to connect to MDtoLink.");
+  new import_obsidian3.Notice("Failed to connect to the server.");
 }
 
 // src/main.ts
@@ -410,26 +409,26 @@ var MDtoLinkPlugin = class extends import_obsidian4.Plugin {
   }
   async onload() {
     await this.loadSettings();
-    this.addRibbonIcon("share", "Publish to MDtoLink", async () => {
+    this.addRibbonIcon("share", "Publish current note", async () => {
       await this.handlePublish();
     });
     this.addCommand({
       id: "publish",
-      name: "Publish to MDtoLink",
+      name: "Publish current note",
       callback: async () => {
         await this.handlePublish();
       }
     });
     this.addCommand({
       id: "unpublish",
-      name: "Unpublish from MDtoLink",
+      name: "Unpublish current note",
       callback: async () => {
         await this.handleUnpublish();
       }
     });
     this.addCommand({
       id: "copy-link",
-      name: "Copy MDtoLink URL",
+      name: "Copy published link",
       callback: async () => {
         await copyLink(this.app);
       }
@@ -443,7 +442,8 @@ var MDtoLinkPlugin = class extends import_obsidian4.Plugin {
       })
     );
     if (this.settings.apiKey.length > 0) {
-      this.fetchUsername();
+      this.fetchUsername().catch(() => {
+      });
     }
   }
   async loadSettings() {
@@ -455,7 +455,7 @@ var MDtoLinkPlugin = class extends import_obsidian4.Plugin {
   }
   createClient() {
     if (this.settings.apiKey.length === 0) {
-      new import_obsidian4.Notice("MDtoLink: Please set your API key in the plugin settings.");
+      new import_obsidian4.Notice("Please set your API key in the plugin settings.");
       return null;
     }
     return new MDtoLinkClient(SERVER_URL, this.settings.apiKey);
@@ -487,9 +487,9 @@ var MDtoLinkPlugin = class extends import_obsidian4.Plugin {
     }
     const meta = getMDtoLinkMeta(this.app, file);
     if (meta !== null) {
-      this.statusBarEl.setText("MDtoLink: Published");
+      this.statusBarEl.setText("Published");
     } else {
-      this.statusBarEl.setText("MDtoLink: Not published");
+      this.statusBarEl.setText("Not published");
     }
   }
   async fetchUsername() {

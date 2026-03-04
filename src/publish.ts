@@ -44,7 +44,7 @@ export async function publishNote(
 	}
 
 	if (file.extension !== "md") {
-		new Notice("Only markdown files can be published.");
+		new Notice("Only Markdown files can be published.");
 		return;
 	}
 
@@ -129,14 +129,14 @@ export async function unpublishNote(
 
 	const meta = getMDtoLinkMeta(app, file);
 	if (meta === null) {
-		new Notice("This note is not published on MDtoLink.");
+		new Notice("This note is not published.");
 		return;
 	}
 
 	try {
 		await client.deleteDocument(meta.id);
 		await clearMDtoLinkMeta(app, file);
-		new Notice("Note unpublished from MDtoLink.");
+		new Notice("Note unpublished.");
 	} catch (error) {
 		handleApiError(error);
 	}
@@ -162,9 +162,7 @@ export async function copyLink(app: App): Promise<void> {
 function handleApiError(error: unknown): void {
 	if (error instanceof MDtoLinkApiError) {
 		if (error.status === 401) {
-			new Notice(
-				"Invalid or expired API key. Check your MDtoLink plugin settings."
-			);
+			new Notice("Invalid or expired API key. Check your plugin settings.");
 			return;
 		}
 		if (error.status === 403) {
@@ -184,8 +182,8 @@ function handleApiError(error: unknown): void {
 			}
 			return;
 		}
-		new Notice(`MDtoLink error: ${error.message}`);
+		new Notice(`Server error: ${error.message}`);
 		return;
 	}
-	new Notice("Failed to connect to MDtoLink.");
+	new Notice("Failed to connect to the server.");
 }
