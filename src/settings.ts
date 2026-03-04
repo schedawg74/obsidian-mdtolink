@@ -35,8 +35,6 @@ export class MDtoLinkSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		new Setting(containerEl).setName("MDtoLink settings").setHeading();
-
 		// API Key
 		new Setting(containerEl)
 			.setName("API key")
@@ -44,7 +42,7 @@ export class MDtoLinkSettingTab extends PluginSettingTab {
 				createFragment((frag) => {
 					frag.appendText("Generate one from your ");
 					frag.createEl("a", {
-						text: "dashboard",
+						text: "Dashboard",
 						href: `${APP_URL}/dashboard/account`,
 					});
 					frag.appendText(".");

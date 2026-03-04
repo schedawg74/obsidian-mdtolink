@@ -165,12 +165,11 @@ var MDtoLinkSettingTab = class extends import_obsidian2.PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
-    new import_obsidian2.Setting(containerEl).setName("MDtoLink settings").setHeading();
     new import_obsidian2.Setting(containerEl).setName("API key").setDesc(
       (0, import_obsidian2.createFragment)((frag) => {
         frag.appendText("Generate one from your ");
         frag.createEl("a", {
-          text: "dashboard",
+          text: "Dashboard",
           href: `${APP_URL}/dashboard/account`
         });
         frag.appendText(".");
