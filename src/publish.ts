@@ -173,6 +173,10 @@ function handleApiError(error: unknown): void {
 				new Notice(
 					`You've reached the free plan limit (5 docs). Upgrade to Pro for unlimited: ${plansUrl}`
 				);
+			} else if (error.message.includes("Private")) {
+				new Notice(
+					`Private documents require a Pro plan. Upgrade: ${plansUrl}`
+				);
 			} else if (error.message.includes("slug")) {
 				new Notice(`Custom slugs require a Pro plan. Upgrade: ${plansUrl}`);
 			} else {

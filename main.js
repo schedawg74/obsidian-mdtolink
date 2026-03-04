@@ -383,6 +383,10 @@ function handleApiError(error) {
         new import_obsidian3.Notice(
           `You've reached the free plan limit (5 docs). Upgrade to Pro for unlimited: ${plansUrl}`
         );
+      } else if (error.message.includes("Private")) {
+        new import_obsidian3.Notice(
+          `Private documents require a Pro plan. Upgrade: ${plansUrl}`
+        );
       } else if (error.message.includes("slug")) {
         new import_obsidian3.Notice(`Custom slugs require a Pro plan. Upgrade: ${plansUrl}`);
       } else {
